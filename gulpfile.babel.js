@@ -1,9 +1,7 @@
-"use strict";
-
-const path = require("path");
-const gulp = require("gulp");
-const webpack = require("webpack");
-const webpack_node_externals = require("webpack-node-externals");
+import path from "path";
+import gulp from "gulp";
+import webpack from "webpack";
+import webpack_node_externals from "webpack-node-externals";
 
 const srcRoot = path.resolve();
 const dstRoot = path.resolve("dist");
@@ -17,11 +15,12 @@ const BABEL_LOADER_QUERY = {
 					"targets": {
 						"node": 4,
 					},
-					// Node.jsはジェネレータにネイティブ対応しているのでこれは不要
+					// Node.jsはジェネレータにネイティブ対応しているので "transform-regenerator" プラグインは不要
 					"exclude": ["transform-regenerator"],
 				},
 			],
 		],
+		babelrc: false,
 	},
 	CLIENT: {
 		presets: [
@@ -38,6 +37,8 @@ const BABEL_LOADER_QUERY = {
 		],
 		// async/awaitを使うなら必要
 		plugins: ["transform-runtime"],
+
+		babelrc: false,
 	},
 };
 

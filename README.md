@@ -14,4 +14,4 @@ $ npm run build
 
 * サーバ用は `node dist/server.js` で確認
 * クライアント用は [`test.html`](./test.html) をブラウザに食わせて確認
-* 対応バージョンを変える場合は [`gulpfile.js`](./gulpfile.js) の最初の方にあるオプションをいじる
+* 対応バージョンを変える場合は [`gulpfile.babel.js`](./gulpfile.babel.js) 内の `targets` をいじる
