@@ -1,5 +1,6 @@
 import path from "path";
 import gulp from "gulp";
+import webserver from "gulp-webserver";
 import webpack from "webpack";
 import webpack_node_externals from "webpack-node-externals";
 
@@ -121,4 +122,13 @@ gulp.task("build-client", (callback) =>
 		console.log(stats.toString({colors: true}));
 		callback();
 	});
+});
+
+gulp.task("start", () => {
+	gulp.src(path.resolve("."))
+		.pipe(webserver({
+			livereload: true,
+			directoryListing: false,
+			open: "test.html",
+		}));
 });
