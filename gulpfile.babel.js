@@ -1,23 +1,28 @@
 import path from "path";
 import gulp from "gulp";
+import babel from "gulp-babel";
+import rename from "gulp-rename";
 import webserver from "gulp-webserver";
 import webpack from "webpack";
-import webpack_node_externals from "webpack-node-externals";
 
 const srcRoot = path.resolve();
 const dstRoot = path.resolve("dist");
+const src = "original.es6";
 
-const BABEL_LOADER_QUERY = {
+const BABEL_OPTIONS = {
 	SERVER: {
 		presets: [
 			[
 				"env",
 				{
-					"targets": {
-						"node": 4,
+					targets: {
+						node: "current",
 					},
 					// Node.jsはジェネレータにネイティブ対応しているので "transform-regenerator" プラグインは不要
-					"exclude": ["transform-regenerator"],
+					exclude: ["transform-regenerator"],
+
+					// 必要なPolyfillのみ導入
+					useBuiltIns: "usage",
 				},
 			],
 		],
@@ -28,11 +33,13 @@ const BABEL_LOADER_QUERY = {
 			[
 				"env",
 				{
-					"targets": {
-						"ie": 8,
-						"firefox": 30,
-						"chrome": 55,
+					targets: {
+						ie: 8,
+						firefox: 30,
+						chrome: 55,
 					},
+					// 必要なPolyfillのみ導入
+					useBuiltIns: "usage",
 				},
 			],
 		],
@@ -56,40 +63,12 @@ gulp.task("build", ["build-server", "build-client"], () =>
 
 
 // build task (Node.js)
-gulp.task("build-server", (callback) =>
+gulp.task("build-server", () =>
 {
-	const config = {
-		target: "node",
-		entry: {
-			"server": "original.es6",
-		},
-		resolve: {
-			modules: [srcRoot, "node_modules"],
-		},
-		output: {
-			path: dstRoot,
-			filename: "[name].js",
-			libraryTarget: "commonjs2",
-		},
-		devtool: "source-map",
-		externals: [
-			webpack_node_externals({modulesFromFile: true}),
-		],
-		module: {
-			loaders: [
-				{
-					test: /\.es6$/,
-					loader: "babel-loader",
-					query: BABEL_LOADER_QUERY.SERVER,
-				},
-			],
-		},
-	};
-	webpack(config, (err, stats) =>
-	{
-		console.log(stats.toString({colors: true}));
-		callback();
-	});
+	gulp.src(path.join(srcRoot, src))
+		.pipe(babel(BABEL_OPTIONS.SERVER))
+		.pipe(rename({basename: "server"}))
+		.pipe(gulp.dest(dstRoot));
 });
 
 // build task (Browser)
@@ -97,7 +76,7 @@ gulp.task("build-client", (callback) =>
 {
 	const config = {
 		entry: {
-			"client": "original.es6",
+			"client": src,
 		},
 		resolve: {
 			modules: [srcRoot, "node_modules"],
@@ -112,7 +91,7 @@ gulp.task("build-client", (callback) =>
 				{
 					test: /\.es6$/,
 					loader: "babel-loader",
-					query: BABEL_LOADER_QUERY.CLIENT,
+					query: BABEL_OPTIONS.CLIENT,
 				},
 			],
 		},
